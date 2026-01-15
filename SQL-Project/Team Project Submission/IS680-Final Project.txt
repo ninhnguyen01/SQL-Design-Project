@@ -1,0 +1,373 @@
+CREATE DATABASE `FINALDATA`;
+
+USE `FINALDATA`;
+
+DROP TABLE IF EXISTS deliverymethod;
+DROP TABLE IF EXISTS deliveryco;
+DROP TABLE IF EXISTS shipment;
+DROP TABLE IF EXISTS customer;
+DROP TABLE IF EXISTS transaction;
+DROP TABLE IF EXISTS oder;
+DROP TABLE IF EXISTS ordertype;
+DROP TABLE IF EXISTS customerservice;
+DROP TABLE IF EXISTS employee;
+DROP TABLE IF EXISTS department;
+DROP TABLE IF EXISTS orderline;
+DROP TABLE IF EXISTS supplies;
+DROP TABLE IF EXISTS manufacture;
+DROP TABLE IF EXISTS suppliesline;
+DROP TABLE IF EXISTS vendor;
+
+CREATE TABLE deliverymethod (
+  DeliveryMethodID INTEGER PRIMARY KEY NOT NULL,
+  ShippingMethod varchar(50) NOT NULL,
+  ShippingCost INT(50) NOT NULL
+  );
+
+CREATE TABLE deliveryco(
+  DeliveryCoID INTEGER PRIMARY KEY NOT NULL,
+  DeliveryCoName varchar(50) NOT NULL,
+  DeliveryCoAddress varchar(50) NOT NULL,
+  DeliveryCoNumber varchar(50) NOT NULL,
+  DeliveryCoEmail varchar(50) NOT NULL
+  );
+
+CREATE TABLE shipment(
+  TrackingNumber INTEGER PRIMARY KEY NOT NULL,
+  OrderID Integer NOT NULL,
+  DeliveryCoID INTEGER NOT NULL,
+  DeliveryMethodID INTEGER NOT NULL,
+  ShipmentStatus varchar(50) NOT NULL,
+  ShipDate DATE NOT NULL,
+  ExpectedArrival DATE NOT NULL
+  );
+
+CREATE TABLE customer (
+  CustomerID INTEGER PRIMARY KEY NOT NULL,
+  FirstName varchar(50) NOT NULL,
+  LastName varchar(50) NOT NULL,
+  CustomerAddress varchar(50) NOT NULL,
+  CustomerCity varchar(50) NOT NULL,
+  CustomerState varchar(50) NOT NULL,
+  CustomerZipCode varchar(15) NOT NULL,
+  CustomerCountry varchar(50) NOT NULL,
+  CustomerPhoneNumber varchar(50) NOT NULL
+  );
+
+CREATE TABLE transaction (
+  OrderID INTEGER NOT NULL,
+  CustomerID INTEGER NOT NULL,
+  PaymentDate DATE NOT NULL,
+  PaymentType varchar(50) NOT NULL,
+  Amount INT(50) NOT NULL
+  );
+
+CREATE TABLE oder (
+  OrderID INTEGER PRIMARY KEY NOT NULL,
+  EmployeeID INTEGER NOT NULL,
+  OrderDate DATE NOT NULL,
+  OrderQuantity INTEGER NOT NULL
+  );
+
+CREATE TABLE ordertype(
+  OrderTypeID INTEGER PRIMARY KEY NOT NULL,
+  OrderID INTEGER NOT NULL,
+  OrderStatus varchar(50) NOT NULL,
+  ReturnItems varchar(50) NOT NULL,
+  ReturnQuantity INTEGER NOT NULL,
+  OrderTypeDescription varchar(50) NOT NULL
+  );
+
+
+CREATE TABLE customerservice (
+  EmployeeID INTEGER NOT NULL,
+  CustomerID INTEGER NOT NULL,
+  FiledDate DATE NOT NULL,
+  CustomerServiceDescription varchar(50) NOT NULL,
+  CaseStatus varchar(50) NOT NULL
+  );
+
+
+CREATE TABLE employee (
+  EmployeeID INTEGER PRIMARY KEY NOT NULL,
+  EmployeeName varchar(50) NOT NULL,
+  EmployeeAddress varchar(50) NOT NULL,
+  Employeecity varchar(50) NOT NULL,
+  Employeestate varchar(50) NOT NULL,
+  EmployeezipCode varchar(15) NOT NULL,
+  Employeecountry varchar(50) NOT NULL,
+  EmployeePhoneNumber varchar(50) NOT NULL,
+  EmployeePosition varchar(50) NOT NULL,
+  DepartmentID int(50) NOT NULL
+  );
+
+
+CREATE TABLE department (
+  DepartmentID INTEGER PRIMARY KEY NOT NULL,
+  DepartmentName varchar(50) NOT NULL,
+  DepartmentDescription varchar(50) NOT NULL,
+  DepartmentCount int(50) NOT NULL
+  );
+
+
+CREATE TABLE orderline (
+  OrderID INTEGER NOT NULL,
+  ProductID INTEGER NOT NULL,
+  OrderLineQuantity INTEGER NOT NULL
+  );
+
+
+CREATE TABLE supplies(
+  MaterialID INTEGER PRIMARY KEY NOT NULL,
+  MaterialName VARCHAR(50) NOT NULL,
+  MaterialCost INT(50) NOT NULL,
+  Stock INTEGER NOT NULL
+  );
+
+
+CREATE TABLE manufacture (
+  ManufactureID INTEGER PRIMARY KEY NOT NULL,
+  EmployeeID INTEGER NOT NULL,
+  MaterialID INTEGER NOT NULL,
+  ProductID INTEGER NOT NULL,
+  ManufactureQuantity INTEGER NOT NULL,
+  ManufactureStartDate DATE NOT NULL,
+  ManufactureFinishedDate DATE NOT NULL
+  );
+
+CREATE TABLE product(
+  ProductID INTEGER PRIMARY KEY NOT NULL,
+  ProductDescription VARCHAR(50) NOT NULL,
+  ProductFinshedDate DATE NOT NULL,
+  ProductPrice INT(50) NOT NULL
+  );
+
+CREATE TABLE suppliesline (
+  MaterialID INTEGER NOT NULL,
+  VendorID INTEGER NOT NULL,
+  UnitPrice INT(50) NOT NULL,
+  SuppliesLineQuantity INTEGER NOT NULL,
+  DateRestock DATE NOT NULL
+  );
+
+
+
+CREATE TABLE vendor (
+  VendorID INTEGER PRIMARY KEY NOT NULL,
+  VendorName varchar(50) NOT NULL,
+  VendorAddress varchar(50) NOT NULL,
+  VendorCity varchar(50) NOT NULL,
+  VendorState varchar(50) NOT NULL,
+  VendorZipCode varchar(15) NOT NULL,
+  VendorCountry varchar(50) NOT NULL,
+  VendorPhoneNumber varchar(50) NOT NULL
+  );
+
+
+
+
+
+
+ALTER TABLE shipment
+    ADD CONSTRAINT fk1_deliverymethod_shipment FOREIGN KEY (DeliveryMethodID) REFERENCES deliverymethod (DeliveryMethodID);
+
+ALTER TABLE shipment
+    ADD CONSTRAINT fk2_deliveryco_shipment FOREIGN KEY (DeliveryCoID) REFERENCES deliveryco (DeliveryCoID);
+
+ALTER TABLE shipment
+    ADD CONSTRAINT fk3_oder_shipment FOREIGN KEY (OrderID) REFERENCES oder (OrderID);
+
+ALTER TABLE oder
+    ADD CONSTRAINT fk1_employee_oder FOREIGN KEY (EmployeeID) REFERENCES employee (EmployeeID);
+
+ALTER TABLE ordertype
+    ADD CONSTRAINT fk1_oder_ordertype FOREIGN KEY (OrderID) REFERENCES oder (OrderID);
+
+ALTER TABLE employee
+    ADD CONSTRAINT fk1_employee_department FOREIGN KEY (DepartmentID) REFERENCES department (DepartmentID);
+
+ALTER TABLE manufacture
+    ADD CONSTRAINT fk1_manufacture_supplies FOREIGN KEY (MaterialID) REFERENCES supplies (MaterialID);
+
+ALTER TABLE manufacture
+    ADD CONSTRAINT fk2_manufacture_employee FOREIGN KEY (EmployeeID) REFERENCES employee (EmployeeID);
+
+ALTER TABLE manufacture
+    ADD CONSTRAINT fk3_manufacture_product FOREIGN KEY (ProductID) REFERENCES product (ProductID);
+
+ALTER TABLE `transaction` ADD CONSTRAINT `fk1_transaction_customer` FOREIGN KEY (`CustomerID`) 
+REFERENCES customer(`CustomerID`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+
+ALTER TABLE `transaction` ADD CONSTRAINT `fk2_transaction_oder` FOREIGN KEY (`OrderID`) 
+REFERENCES oder(`OrderID`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+ALTER TABLE `orderline` ADD CONSTRAINT `fk1_orderline_oder` FOREIGN KEY (`OrderID`) 
+REFERENCES oder(`OrderID`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+
+ALTER TABLE `orderline` ADD CONSTRAINT `fk2_orderline_product` FOREIGN KEY (`ProductID`) 
+REFERENCES product(`ProductID`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+ALTER TABLE `customerservice` ADD CONSTRAINT `fk1_customerservice_customer` FOREIGN KEY (`CustomerID`) 
+REFERENCES customer(`CustomerID`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+
+ALTER TABLE `customerservice` ADD CONSTRAINT `fk2_customerservice_employee` FOREIGN KEY (`EmployeeID`) 
+REFERENCES employee(`EmployeeID`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+ALTER TABLE `suppliesline` ADD CONSTRAINT `fk1_suppliesline_supplies` FOREIGN KEY (`MaterialID`) 
+REFERENCES supplies(`MaterialID`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+
+ALTER TABLE `suppliesline` ADD CONSTRAINT `fk2_suppliesline_vendor` FOREIGN KEY (`VendorID`) 
+REFERENCES vendor(`VendorID`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+
+
+
+## INSERT DATA INTO DATABASE
+INSERT INTO deliverymethod (DeliveryMethodID,ShippingMethod,ShippingCost) VALUES ('23434','2-day shpping','15');
+INSERT INTO deliverymethod (DeliveryMethodID,ShippingMethod,ShippingCost) VALUES ('24554','Ground','8');
+INSERT INTO deliverymethod (DeliveryMethodID,ShippingMethod,ShippingCost) VALUES ('64324','Ground','10');
+INSERT INTO deliverymethod (DeliveryMethodID,ShippingMethod,ShippingCost) VALUES ('64343','Ground','5');
+INSERT INTO deliverymethod (DeliveryMethodID,ShippingMethod,ShippingCost) VALUES ('67434','Expedited shipping','18');
+INSERT INTO deliverymethod (DeliveryMethodID,ShippingMethod,ShippingCost) VALUES ('53567','Overnight','25');
+
+INSERT INTO deliveryco (DeliveryCoID,DeliveryCoName,DeliveryCoAddress,DeliveryCoNumber,DeliveryCoEmail) VALUES ('980032','UPS','16478 Beach Blvd, Westminster, CA 92683','424-672-3422','totaltrack@ups.com');
+INSERT INTO deliveryco (DeliveryCoID,DeliveryCoName,DeliveryCoAddress,DeliveryCoNumber,DeliveryCoEmail) VALUES ('782300','Fedex ','11542 Knott St Suite 4, Garden Grove, CA 92841','310-874-2346','ftn_us@fedex.com');
+INSERT INTO deliveryco (DeliveryCoID,DeliveryCoName,DeliveryCoAddress,DeliveryCoNumber,DeliveryCoEmail) VALUES ('345678','USPS','15030 Goldenwest Cir, Westminster, CA 92685','424-678-2934','Postalone@email.usps.gov');
+INSERT INTO deliveryco (DeliveryCoID,DeliveryCoName,DeliveryCoAddress,DeliveryCoNumber,DeliveryCoEmail) VALUES ('982745','USPS','15030 Goldenwest Cir, Westminster, CA 92685','310-235-2094','Postalone@email.usps.gov');
+INSERT INTO deliveryco (DeliveryCoID,DeliveryCoName,DeliveryCoAddress,DeliveryCoNumber,DeliveryCoEmail) VALUES ('245643','UPS','16478 Beach Blvd, Westminster, CA 92683','310-234-2463','totaltrack@ups.com.');
+INSERT INTO deliveryco (DeliveryCoID,DeliveryCoName,DeliveryCoAddress,DeliveryCoNumber,DeliveryCoEmail) VALUES ('432577','USPS','15030 Goldenwest Cir, Westminster, CA 92685','424-578-2846','Postalone@email.usps.gov');
+INSERT INTO deliveryco (DeliveryCoID,DeliveryCoName,DeliveryCoAddress,DeliveryCoNumber,DeliveryCoEmail) VALUES ('257843','Fedex ','11542 Knott St Suite 4, Garden Grove, CA 92841','424-626-8953','ftn_us@fedex.com');
+INSERT INTO deliveryco (DeliveryCoID,DeliveryCoName,DeliveryCoAddress,DeliveryCoNumber,DeliveryCoEmail) VALUES ('325788','UPS','16478 Beach Blvd, Westminster, CA 92683','310-247-2636','totaltrack@ups.com.');
+
+
+
+
+INSERT INTO customer(CustomerID,FirstName,LastName,CustomerAddress,CustomerCity,CustomerState,CustomerZipcode,CustomerCountry,CustomerPhoneNumber ) VALUES  (001,'Sarah ','Choi','3276 Yorkie Lane','Savannah','Georgia','31405','United States','662-399-4388');
+INSERT INTO customer(CustomerID,FirstName,LastName,CustomerAddress,CustomerCity,CustomerState,CustomerZipcode,CustomerCountry,CustomerPhoneNumber ) VALUES  (002,'Minh ','Le','925 Nickel Road','Long Beach','California','90802','United States','902-303-5673');
+INSERT INTO customer(CustomerID,FirstName,LastName,CustomerAddress,CustomerCity,CustomerState,CustomerZipcode,CustomerCountry,CustomerPhoneNumber ) VALUES  (003,'Kennard ','Cafer','477 Losh Lane','Pittsburgh','Pennsylvania','15222','United States','734-483-8628');
+INSERT INTO customer(CustomerID,FirstName,LastName,CustomerAddress,CustomerCity,CustomerState,CustomerZipcode,CustomerCountry,CustomerPhoneNumber ) VALUES  (004,'Myra ','Yu','3704 Lake Road','Trenton','New Jersey','86080','United States','626-862-0236');
+INSERT INTO customer(CustomerID,FirstName,LastName,CustomerAddress,CustomerCity,CustomerState,CustomerZipcode,CustomerCountry,CustomerPhoneNumber ) VALUES  (005,'Marcus','Kumar','2122 Clifford Street','San Leandro','California ','94578','United States','972-641-2457');
+INSERT INTO customer(CustomerID,FirstName,LastName,CustomerAddress,CustomerCity,CustomerState,CustomerZipcode,CustomerCountry,CustomerPhoneNumber ) VALUES  (006,'Lisa ','Tran','1586 Woodside Circle','Perry','Florida','32347','United States','239-863-9023');
+INSERT INTO customer(CustomerID,FirstName,LastName,CustomerAddress,CustomerCity,CustomerState,CustomerZipcode,CustomerCountry,CustomerPhoneNumber ) VALUES  (007,'Tiffany ','Bui','2781 Cherry St','Westminster','California','92687','United States','714-971-2256');
+INSERT INTO customer(CustomerID,FirstName,LastName,CustomerAddress,CustomerCity,CustomerState,CustomerZipcode,CustomerCountry,CustomerPhoneNumber ) VALUES  (008,'Hayami','Chen','4920 Hoffman Avenue','New York','New York','10013','United States','919-853-1368');
+
+
+
+
+INSERT INTO department (DepartmentID,DepartmentName,DepartmentDescription,DepartmentCount) VALUES ('234222','Manufacturing','Product Promotion','3');
+INSERT INTO department (DepartmentID,DepartmentName,DepartmentDescription,DepartmentCount) VALUES ('356332','Customer Service ','Order processing and Solve issue orders ','2');
+INSERT INTO department (DepartmentID,DepartmentName,DepartmentDescription,DepartmentCount) VALUES ('632456','Accounting','Manage accounts and Auditing','1');
+INSERT INTO department (DepartmentID,DepartmentName,DepartmentDescription,DepartmentCount) VALUES ('268943','IT','Support technical issues','1');
+INSERT INTO department (DepartmentID,DepartmentName,DepartmentDescription,DepartmentCount) VALUES ('358943','Design','Design new products','1');
+
+
+INSERT INTO employee(EmployeeID,EmployeeName,EmployeeAddress,EmployeeCity,EmployeeState,EmployeeZipCode,EmployeeCountry,EmployeePhoneNumber,EmployeePosition,DepartmentID) VALUES (18622,'Julie Nguyen','2143 Edinger Ave','Newport Beach','CA','24204','United States','423-245-3556','Worker','234222');
+INSERT INTO employee(EmployeeID,EmployeeName,EmployeeAddress,EmployeeCity,EmployeeState,EmployeeZipCode,EmployeeCountry,EmployeePhoneNumber,EmployeePosition,DepartmentID) VALUES (29873,'Ngoc Tang','2222 Beach Blvd','Los Angeles','CA','35320','United States','714-487-9929','Accountant','632456');
+INSERT INTO employee(EmployeeID,EmployeeName,EmployeeAddress,EmployeeCity,EmployeeState,EmployeeZipCode,EmployeeCountry,EmployeePhoneNumber,EmployeePosition,DepartmentID) VALUES (34455,'Kayla Liu','5434 Sunset Ave','Westminster','CA','23450','United States','323-343-3456','IT Support','268943');
+INSERT INTO employee(EmployeeID,EmployeeName,EmployeeAddress,EmployeeCity,EmployeeState,EmployeeZipCode,EmployeeCountry,EmployeePhoneNumber,EmployeePosition,DepartmentID) VALUES (19233,'Ninh Nguyen','235 Westmninster Ave','Irvine','FL','45670','United States','364-644-3576','Designer','358943');
+INSERT INTO employee(EmployeeID,EmployeeName,EmployeeAddress,EmployeeCity,EmployeeState,EmployeeZipCode,EmployeeCountry,EmployeePhoneNumber,EmployeePosition,DepartmentID) VALUES (23344,'Andrew Lee','2353 Olympic Ave','Long Beach','GA','57800','United States','714-453-5342','Customer Service Assistant','356332');
+INSERT INTO employee(EmployeeID,EmployeeName,EmployeeAddress,EmployeeCity,EmployeeState,EmployeeZipCode,EmployeeCountry,EmployeePhoneNumber,EmployeePosition,DepartmentID) VALUES (75455,'Justin Huang','2343 Ward Street','Omaha','WA','70896','United States','645-675-4676','Customer Service Assistant','356332');
+INSERT INTO employee(EmployeeID,EmployeeName,EmployeeAddress,EmployeeCity,EmployeeState,EmployeeZipCode,EmployeeCountry,EmployeePhoneNumber,EmployeePosition,DepartmentID) VALUES (24789,'Ana Chung','234 Sunset Ave','Lincoln','MA','68700','United States','714-542-3543','Worker','234222');
+INSERT INTO employee(EmployeeID,EmployeeName,EmployeeAddress,EmployeeCity,EmployeeState,EmployeeZipCode,EmployeeCountry,EmployeePhoneNumber,EmployeePosition,DepartmentID) VALUES (23568,'Mark Le','3453 Beach Blvd','Huntington Beach','OH','69786','United States','714-440-3544','Worker','234222');
+
+
+INSERT INTO oder (OrderID,EmployeeID,OrderDate,OrderQuantity) VALUES ('10001','18622','2022-04-27','8');
+INSERT INTO oder (OrderID,EmployeeID,OrderDate,OrderQuantity) VALUES ('10002','24789','2021-08-24','6');
+INSERT INTO oder (OrderID,EmployeeID,OrderDate,OrderQuantity) VALUES ('10003','23568','2021-01-19','4');
+INSERT INTO oder (OrderID,EmployeeID,OrderDate,OrderQuantity) VALUES ('10004','18622','2021-11-05','7');
+INSERT INTO oder (OrderID,EmployeeID,OrderDate,OrderQuantity) VALUES ('10005','18622','2022-04-14','2');
+INSERT INTO oder (OrderID,EmployeeID,OrderDate,OrderQuantity) VALUES ('10006','24789','2022-03-05','3');
+INSERT INTO oder (OrderID,EmployeeID,OrderDate,OrderQuantity) VALUES ('10007','24789','2021-12-20','8');
+INSERT INTO oder (OrderID,EmployeeID,OrderDate,OrderQuantity) VALUES ('10008','23568','2021-10-28','3');
+
+INSERT INTO transaction (OrderID,CustomerID,PaymentDate,PaymentType,Amount) VALUES ('10001','001','2022-04-27','Credit Card','26');
+INSERT INTO transaction (OrderID,CustomerID,PaymentDate,PaymentType,Amount) VALUES ('10002','002','2021-08-24','Credit Card','67');
+INSERT INTO transaction (OrderID,CustomerID,PaymentDate,PaymentType,Amount) VALUES ('10003','003','2021-01-19','Paypal','32');
+INSERT INTO transaction (OrderID,CustomerID,PaymentDate,PaymentType,Amount) VALUES ('10004','004','2021-11-05','Credit Card','77');
+INSERT INTO transaction (OrderID,CustomerID,PaymentDate,PaymentType,Amount) VALUES ('10005','005','2022-04-14','Venmo','15');
+INSERT INTO transaction (OrderID,CustomerID,PaymentDate,PaymentType,Amount) VALUES ('10006','006','2022-03-05','Paypal','45');
+INSERT INTO transaction (OrderID,CustomerID,PaymentDate,PaymentType,Amount) VALUES ('10007','007','2021-12-20','Credit Card','101');
+INSERT INTO transaction (OrderID,CustomerID,PaymentDate,PaymentType,Amount) VALUES ('10008','008','2021-10-28','Credit Card','29');
+
+
+INSERT INTO ordertype (OrderTypeID,OrderID,OrderStatus,ReturnItems,ReturnQuantity,OrderTypeDescription ) VALUES ('33865','10001','Delivered','None','0','Signature Required ');
+INSERT INTO ordertype (OrderTypeID,OrderID,OrderStatus,ReturnItems,ReturnQuantity,OrderTypeDescription ) VALUES ('44328','10002','Shipped','None','0','Premium Shipping Delivery ');
+INSERT INTO ordertype (OrderTypeID,OrderID,OrderStatus,ReturnItems,ReturnQuantity,OrderTypeDescription ) VALUES ('44239','10003','Pending','None','0','Standard Shipping ');
+INSERT INTO ordertype (OrderTypeID,OrderID,OrderStatus,ReturnItems,ReturnQuantity,OrderTypeDescription ) VALUES ('22349','10004','Shipped','None','0','Signature Required ');
+INSERT INTO ordertype (OrderTypeID,OrderID,OrderStatus,ReturnItems,ReturnQuantity,OrderTypeDescription ) VALUES ('55226','10005','Returned','Yellow Floral Scrunchies','2','Returned on 05/10/2022');
+INSERT INTO ordertype (OrderTypeID,OrderID,OrderStatus,ReturnItems,ReturnQuantity,OrderTypeDescription ) VALUES ('22235','10006','Shipped','None','0','Signature Required ');
+INSERT INTO ordertype (OrderTypeID,OrderID,OrderStatus,ReturnItems,ReturnQuantity,OrderTypeDescription ) VALUES ('33213','10007','Delivered','None','0','Signature Required ');
+INSERT INTO ordertype (OrderTypeID,OrderID,OrderStatus,ReturnItems,ReturnQuantity,OrderTypeDescription ) VALUES ('22234','10008','Shipped','None','0','Signature Required ');
+
+
+
+INSERT INTO shipment (TrackingNumber,OrderID,DeliveryCoID,DeliveryMethodID,ShipmentStatus,ShipDate,ExpectedArrival) VALUES ('907875234','10001','980032','23434','Delivered','2022-04-29','2022-05-10');
+INSERT INTO shipment (TrackingNumber,OrderID,DeliveryCoID,DeliveryMethodID,ShipmentStatus,ShipDate,ExpectedArrival) VALUES ('298638261','10002','782300','24554','On the way','2021-08-25','2021-08-27');
+INSERT INTO shipment (TrackingNumber,OrderID,DeliveryCoID,DeliveryMethodID,ShipmentStatus,ShipDate,ExpectedArrival) VALUES ('299425144','10003','345678','64324','Pending','2021-01-21','2021-01-27');
+INSERT INTO shipment (TrackingNumber,OrderID,DeliveryCoID,DeliveryMethodID,ShipmentStatus,ShipDate,ExpectedArrival) VALUES ('294752163','10004','982745','64343','On the way','2021-11-06','2021-11-12');
+INSERT INTO shipment (TrackingNumber,OrderID,DeliveryCoID,DeliveryMethodID,ShipmentStatus,ShipDate,ExpectedArrival) VALUES ('287638214','10005','245643','67434','Returned','2022-04-16','2022-04-21');
+INSERT INTO shipment (TrackingNumber,OrderID,DeliveryCoID,DeliveryMethodID,ShipmentStatus,ShipDate,ExpectedArrival) VALUES ('874023742','10006','432577','53567','On the way','2022-03-07','2022-03-15');
+INSERT INTO shipment (TrackingNumber,OrderID,DeliveryCoID,DeliveryMethodID,ShipmentStatus,ShipDate,ExpectedArrival) VALUES ('987325134','10007','257843','24554','Delivered','2021-12-21','2021-12-22');
+INSERT INTO shipment (TrackingNumber,OrderID,DeliveryCoID,DeliveryMethodID,ShipmentStatus,ShipDate,ExpectedArrival) VALUES ('874395610','10008','325788','64324','On the way','2021-10-29','2021-11-05');
+
+
+
+
+INSERT INTO product (ProductID,ProductDescription,ProductFinshedDate,ProductPrice) VALUES ('47892','Gloria Scrunchie Brown ','2021-10-20','25');
+INSERT INTO product (ProductID,ProductDescription,ProductFinshedDate,ProductPrice) VALUES ('31785','Silky Set Green','2021-10-23','37');
+INSERT INTO product (ProductID,ProductDescription,ProductFinshedDate,ProductPrice) VALUES ('64271','Hair Envy Curl Pack','2021-11-23','18');
+INSERT INTO product (ProductID,ProductDescription,ProductFinshedDate,ProductPrice) VALUES ('64287','Cute Dino Hoodie','2021-12-27','60');
+INSERT INTO product (ProductID,ProductDescription,ProductFinshedDate,ProductPrice) VALUES ('35641','Trendy Shirt ','2021-09-28','55');
+
+
+
+INSERT INTO customerservice (EmployeeID,CustomerID,FiledDate,CustomerServiceDescription,CaseStatus) VALUES ('18622','001','2022-04-28','None','None');
+INSERT INTO customerservice (EmployeeID,CustomerID,FiledDate,CustomerServiceDescription,CaseStatus) VALUES ('29873','002','2021-09-26','Customer have issue with payment','Problem Solved');
+INSERT INTO customerservice (EmployeeID,CustomerID,FiledDate,CustomerServiceDescription,CaseStatus) VALUES ('34455','003','2021-01-29','None','None');
+INSERT INTO customerservice (EmployeeID,CustomerID,FiledDate,CustomerServiceDescription,CaseStatus) VALUES ('19233','004','2021-12-05','None','None');
+INSERT INTO customerservice (EmployeeID,CustomerID,FiledDate,CustomerServiceDescription,CaseStatus) VALUES ('23344','005','2022-04-12','Customer wants to return the order','Problem Solved');
+INSERT INTO customerservice (EmployeeID,CustomerID,FiledDate,CustomerServiceDescription,CaseStatus) VALUES ('75455','006','2022-06-23','Order tracking issue','Pending');
+INSERT INTO customerservice (EmployeeID,CustomerID,FiledDate,CustomerServiceDescription,CaseStatus) VALUES ('24789','007','2021-12-25','None','None');
+INSERT INTO customerservice (EmployeeID,CustomerID,FiledDate,CustomerServiceDescription,CaseStatus) VALUES ('23568','008','2021-11-30','Requested Change Size ','Pending');
+
+
+
+
+INSERT INTO orderline (OrderID,ProductID,OrderLineQuantity) VALUES ('10001','47892','8');
+INSERT INTO orderline (OrderID,ProductID,OrderLineQuantity) VALUES ('10002','31785','6');
+INSERT INTO orderline (OrderID,ProductID,OrderLineQuantity) VALUES ('10003','64271','4');
+INSERT INTO orderline (OrderID,ProductID,OrderLineQuantity) VALUES ('10004','64287','7');
+INSERT INTO orderline (OrderID,ProductID,OrderLineQuantity) VALUES ('10005','35641','2');
+INSERT INTO orderline (OrderID,ProductID,OrderLineQuantity) VALUES ('10006','31785','3');
+INSERT INTO orderline (OrderID,ProductID,OrderLineQuantity) VALUES ('10007','64271','8');
+INSERT INTO orderline (OrderID,ProductID,OrderLineQuantity) VALUES ('10008','64287','3');
+
+
+INSERT INTO Supplies (MaterialID,MaterialName,MaterialCost,Stock) VALUES ('13579','Cotton','630','100');
+INSERT INTO Supplies (MaterialID,MaterialName,MaterialCost,Stock) VALUES ('24687','Silk ','735','78');
+INSERT INTO Supplies (MaterialID,MaterialName,MaterialCost,Stock) VALUES ('47896','Linen','870','35');
+INSERT INTO Supplies (MaterialID,MaterialName,MaterialCost,Stock) VALUES ('76511','Polyester ','624','24');
+INSERT INTO Supplies (MaterialID,MaterialName,MaterialCost,Stock) VALUES ('45378','Nylon','1460','67');
+
+INSERT INTO vendor(VendorID,VendorName,VendorAddress,VendorCity,VendorState,VendorZipcode,VendorCountry,VendorPhoneNumber) VALUES  (96486,'Sell Wholesale ','3165 Bellflower Blvd','Long Beach','CA','90840','United States','420-752-2354');
+INSERT INTO vendor(VendorID,VendorName,VendorAddress,VendorCity,VendorState,VendorZipcode,VendorCountry,VendorPhoneNumber) VALUES  (35216,'Supplyspace ','2590 Bellflower Blvd','Long Beach','CA','90840','United States','420-752-2355');
+INSERT INTO vendor(VendorID,VendorName,VendorAddress,VendorCity,VendorState,VendorZipcode,VendorCountry,VendorPhoneNumber) VALUES  (54687,'Bubble Distributing','9652 Bellflower Blvd','Long Beach','CA','90840','United States','420-752-2356');
+INSERT INTO vendor(VendorID,VendorName,VendorAddress,VendorCity,VendorState,VendorZipcode,VendorCountry,VendorPhoneNumber) VALUES  (25422,'Charter Company','2471Bellflower Blvd','Long Beach','CA','90840','United States','420-752-2357');
+INSERT INTO vendor(VendorID,VendorName,VendorAddress,VendorCity,VendorState,VendorZipcode,VendorCountry,VendorPhoneNumber) VALUES  (31546,'Future Energy ','7390 Bellflower Blvd','Long Beach','CA','90840','United States','420-752-2358');
+
+
+INSERT INTO suppliesline (MaterialID,VendorID,UnitPrice,SuppliesLineQuantity,DateRestock) VALUES ('13579','96486','2','315','2021-01-19');
+INSERT INTO suppliesline (MaterialID,VendorID,UnitPrice,SuppliesLineQuantity,DateRestock) VALUES ('24687','35216','3','245','2021-11-05');
+INSERT INTO suppliesline (MaterialID,VendorID,UnitPrice,SuppliesLineQuantity,DateRestock) VALUES ('47896','54687','6','145','2022-04-14');
+INSERT INTO suppliesline (MaterialID,VendorID,UnitPrice,SuppliesLineQuantity,DateRestock) VALUES ('76511','25422','2','312','2022-03-05');
+INSERT INTO suppliesline (MaterialID,VendorID,UnitPrice,SuppliesLineQuantity,DateRestock) VALUES ('45378','31546','4','365','2021-12-20');
+
+
+
+
+INSERT INTO manufacture(ManufactureID,EmployeeID,MaterialID,ProductID,ManufactureQuantity,ManufactureStartDate,ManufactureFinishedDate) VALUES  (34617,'18622','13579','47892','543','2021-05-02','2021-08-20');
+INSERT INTO manufacture(ManufactureID,EmployeeID,MaterialID,ProductID,ManufactureQuantity,ManufactureStartDate,ManufactureFinishedDate) VALUES  (86521,'29873','24687','31785','342','2021-06-03','2021-07-24');
+INSERT INTO manufacture(ManufactureID,EmployeeID,MaterialID,ProductID,ManufactureQuantity,ManufactureStartDate,ManufactureFinishedDate) VALUES  (55647,'34455','47896','64271','677','2021-03-20','2021-05-05');
+INSERT INTO manufacture(ManufactureID,EmployeeID,MaterialID,ProductID,ManufactureQuantity,ManufactureStartDate,ManufactureFinishedDate) VALUES  (34688,'19233','76511','64287','441','2021-04-16','2021-06-13');
+INSERT INTO manufacture(ManufactureID,EmployeeID,MaterialID,ProductID,ManufactureQuantity,ManufactureStartDate,ManufactureFinishedDate) VALUES  (12589,'23344','45378','35641','203','2021-08-20','2021-12-31');
+
